@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 @layer base {
-  html {
+  .main {
     color: #171717;
-    background-color: #f8f8f8;
+    background-color: #f9f9f9;
   }
   h1 {
     @apply font-bold text-xl md:text-2xl  lg:text-3xl xl:text-5xl;

@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import Providers from './providers'
+import MainMenu from '@/components/menu/MainMenu'
 
 const inter = Inter({
   subsets: ['cyrillic'],
@@ -19,8 +21,13 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ru">
-      <body className={inter.className}>{children}</body>
+    <html lang="ru" className="main">
+      <body className={inter.className}>
+        <Providers>
+          <MainMenu />
+          {children}
+        </Providers>
+      </body>
     </html>
   )
 }
