@@ -1,6 +1,14 @@
 'use client'
 import { signIn } from 'next-auth/react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
+import { z } from 'zod'
+
+type FormErrorsT = {
+  identifier?: undefined | string[]
+  password?: undefined | string[]
+  strapiError?: string
+}
 
 export default function SignInForm() {
   const initialState = {
@@ -8,6 +16,21 @@ export default function SignInForm() {
     password: '',
   }
   const [data, setData] = useState(initialState)
+
+  const formSchema = z.object({
+    identifier: z.string().min(3).max(30),
+    password: z
+      .string()
+      .min(6, { message: 'Password must be at least 6 characters long.' })
+      .max(30),
+  })
+
+  const [errors, setErrors] = useState<FormErrorsT>({})
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get('callbackUrl') || '/'
+  const router = useRouter()
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setData({
@@ -19,13 +42,32 @@ export default function SignInForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    const signInResponse = await signIn('credentials', {
-      identifier: data.identifier,
-      password: data.password,
-      redirect: false,
-    })
+    setIsLoading(true)
 
-    console.log('signInResponse', signInResponse)
+    const validatedFields = formSchema.safeParse(data)
+
+    if (!validatedFields.success) {
+      setErrors(validatedFields.error.formErrors.fieldErrors)
+      setIsLoading(false)
+    } else {
+      const signInResponse = await signIn('credentials', {
+        identifier: data.identifier,
+        password: data.password,
+        redirect: false,
+      })
+
+      if (signInResponse && !signInResponse?.ok) {
+        setErrors({
+          strapiError: signInResponse.error
+            ? signInResponse.error
+            : 'Something went wrong.',
+        })
+        setIsLoading(false)
+      } else {
+        router.push(callbackUrl)
+        router.refresh()
+      }
+    }
   }
 
   return (
@@ -56,14 +98,27 @@ export default function SignInForm() {
           onChange={handleChange}
         />
       </div>
+      {errors?.identifier ? (
+        <div className="text-red-700" aria-live="polite">
+          {errors.identifier[0]}
+        </div>
+      ) : null}
+
       <div className="mb-3">
         <button
           type="submit"
           className="bg-blue-400 px-4 py-2 rounded-md disabled:bg-sky-200 disabled:text-gray-500"
+          disabled={isLoading}
         >
           sign in
         </button>
       </div>
+
+      {errors.strapiError ? (
+        <div className="text-red-700" aria-live="polite">
+          Something went wrong: {errors.strapiError}
+        </div>
+      ) : null}
     </form>
   )
 }
