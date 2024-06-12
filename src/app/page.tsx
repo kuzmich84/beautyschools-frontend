@@ -18,7 +18,7 @@ const homePageQuery = qs.stringify({
 })
 
 async function getStrapiData(path: string) {
-  const baseUrl = 'http://localhost:1337'
+  const baseUrl = process.env.STRAPI_BACKEND_URL
 
   const url = new URL(path, baseUrl)
   url.search = homePageQuery
