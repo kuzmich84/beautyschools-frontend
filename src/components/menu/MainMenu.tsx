@@ -15,6 +15,7 @@ import {
 import { useSession } from 'next-auth/react'
 import { useState } from 'react'
 import HeaderAuth from './HeaderAuth'
+import paths from '@/paths'
 
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -47,7 +48,7 @@ export default function App() {
         justify="start"
       >
         <NavbarBrand>
-          <Link href="/" className="font-bold text-inherit">
+          <Link href={paths.home()} className="font-bold text-inherit">
             Beauty Schools
           </Link>
         </NavbarBrand>
