@@ -1,13 +1,12 @@
 import React from 'react'
 import Link from 'next/link'
-import GoogleSignInButton from './GoogleSignInButton.1'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import GoogleSignInError from './GoogleSignInError'
 import LoginForm from './LoginForm'
+import { auth } from '@/auth'
+import GoogleSignInButton from './GoogleSignInButton'
 
 export default async function Login() {
-  const session = await getServerSession(authOptions)
+  const session = await auth()
   return (
     <div className="mx-auto my-8 p-8 max-w-lg bg-zinc-100 rounded-sm">
       <h2 className="text-center text-2xl text-blue-400 mb-8 font-bold">

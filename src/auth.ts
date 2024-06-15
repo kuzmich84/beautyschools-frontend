@@ -1,10 +1,15 @@
-import { StrapiErrorT } from '@/types/strapi/StrapiError'
-import { StrapiLoginResponseT } from '@/types/strapi/User'
-import { NextAuthOptions } from 'next-auth'
-import GoogleProvider from 'next-auth/providers/google'
+import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import GoogleProvider from 'next-auth/providers/google'
+import { StrapiErrorT } from './types/strapi/StrapiError'
+import { StrapiLoginResponseT } from './types/strapi/User'
 
-export const authOptions: NextAuthOptions = {
+export const {
+  auth,
+  handlers: { GET, POST },
+  signIn,
+  signOut,
+} = NextAuth({
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID ?? '',
@@ -133,4 +138,4 @@ export const authOptions: NextAuthOptions = {
       return true
     },
   },
-}
+})
