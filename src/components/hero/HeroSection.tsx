@@ -4,13 +4,13 @@ import {
   Card,
   CardBody,
   CardFooter,
-  CardHeader,
   Divider,
   Input,
 } from '@nextui-org/react'
 import { Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
+import { StrapiImage } from '../ui/StrapiImage'
 
 interface Image {
   id: number
@@ -35,24 +35,22 @@ interface HeroSectionProps {
 
 export function HeroSection({ data }: { readonly data: HeroSectionProps }) {
   const { heading, subHeading, image, link } = data
-  const imageURL = 'http://localhost:1337' + image.url
+
+  const imageURL = process.env.NEXT_PUBLIC_STRAPI_URL + image.url
 
   const [isVisible, setIsVisible] = useState(false)
   const toggleVisibility = () => setIsVisible(!isVisible)
 
   return (
     <div className="relative h-[700px] overflow-hidden mx-[60px] rounded-xl">
-      <img
-        alt={image.alternativeText}
-        className="absolute inset-0 object-cover w-full h-full"
-        height={1080}
+      <StrapiImage
+        alt="Background"
+        className="absolute inset-0 object-cover w-full h-full aspect/16:9"
         src={imageURL}
-        style={{
-          aspectRatio: '1920/1080',
-          objectFit: 'cover',
-        }}
+        height={1080}
         width={1920}
       />
+
       <div className="flex flex-col lg:flex-row h-full">
         <div className="relative z-10 flex flex-col items-start justify-center h-full text-white basis-1/2  bg-indigo-950 bg-opacity-70">
           <h1 className="text-2xl font-bold md:text-3xl lg:text-4xl md:px-24 xl:px-28 lg:px-5">
@@ -73,6 +71,17 @@ export function HeroSection({ data }: { readonly data: HeroSectionProps }) {
             <h3 className="text-center mb-3">Создать аккаунт</h3>
             <CardBody>
               <form>
+                <Input
+                  variant="bordered"
+                  size="lg"
+                  type="text"
+                  name="name"
+                  label="Имя"
+                  labelPlacement="outside"
+                  placeholder="Ваш имя"
+                  className="mb-11"
+                  radius="sm"
+                />
                 <Input
                   variant="bordered"
                   size="lg"

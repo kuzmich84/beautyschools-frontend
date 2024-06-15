@@ -6,6 +6,7 @@ import SignOutButton from '../ui/SignOutButton'
 
 export default function HeaderAuth() {
   const { data: session } = useSession()
+  console.log(session)
   if (!session) {
     return <SignInButton />
   }

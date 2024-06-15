@@ -14,7 +14,6 @@ import {
 } from '@nextui-org/react'
 import { useSession } from 'next-auth/react'
 import { useState } from 'react'
-import SignInButton from '../ui/SignInButton'
 import HeaderAuth from './HeaderAuth'
 
 export default function App() {

@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import GoogleSignInButton from './GoogleSignInButton'
+import GoogleSignInButton from './GoogleSignInButton.1'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import GoogleSignInError from './GoogleSignInError'

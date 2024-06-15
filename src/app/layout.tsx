@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import Providers from './providers'
 import MainMenu from '@/components/menu/MainMenu'
+import Footer from '@/components/footer/Footer'
 
 const inter = Inter({
   subsets: ['cyrillic'],
@@ -25,7 +26,8 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>
           <MainMenu />
-          {children}
+          <main className="flex-1">{children}</main>
+          <Footer />
         </Providers>
       </body>
     </html>
