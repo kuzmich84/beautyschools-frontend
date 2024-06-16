@@ -81,6 +81,7 @@ export function HeroSection({ data }: { readonly data: HeroSectionProps }) {
                   placeholder="Ваш имя"
                   className="mb-11"
                   radius="sm"
+                  isRequired
                 />
                 <Input
                   variant="bordered"
@@ -92,8 +93,10 @@ export function HeroSection({ data }: { readonly data: HeroSectionProps }) {
                   placeholder="Ваш email"
                   className="mb-11"
                   radius="sm"
+                  isRequired
                 />
                 <Input
+                  isRequired
                   autoComplete="on"
                   variant="bordered"
                   size="lg"

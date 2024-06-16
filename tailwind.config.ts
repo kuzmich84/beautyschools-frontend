@@ -18,6 +18,16 @@ const config: Config = {
       },
     },
   },
-  plugins: [nextui()],
+  plugins: [
+    nextui({
+      themes: {
+        light: {
+          colors: {
+            secondary: '#4f46e5',
+          },
+        },
+      },
+    }),
+  ],
 }
 export default config

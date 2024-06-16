@@ -8,21 +8,13 @@ import GoogleSignInButton from './GoogleSignInButton'
 export default async function Login() {
   const session = await auth()
   return (
-    <div className="mx-auto my-8 p-8 max-w-lg bg-zinc-100 rounded-sm">
-      <h2 className="text-center text-2xl text-blue-400 mb-8 font-bold">
-        Sign in
-      </h2>
+    <div className="container mx-auto my-8 p-8 max-w-min rounded-sm">
+      <h2 className="text-center  mb-8">Авторизация</h2>
       {session ? (
         <p className="text-center">You are already signed in.</p>
       ) : (
         <div>
-          <p className="mb-4">
-            Sign in to your account or{' '}
-            <Link href="/register" className="underline">
-              create a new account.
-            </Link>
-          </p>
-          <LoginForm />
+          <LoginForm tabKey='login' />
           <div className='text-center relative my-8 after:content-[""] after:block after:w-full after:h-[1px] after:bg-zinc-300 after:relative after:-top-3 after:z-0'>
             <span className="bg-zinc-100 px-4 relative z-10 text-zinc-400">
               or
