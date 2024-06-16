@@ -75,7 +75,7 @@ export function HeroSection({ data }: { readonly data: HeroSectionProps }) {
                   variant="bordered"
                   size="lg"
                   type="text"
-                  name="name"
+                  name="username"
                   label="Имя"
                   labelPlacement="outside"
                   placeholder="Ваш имя"

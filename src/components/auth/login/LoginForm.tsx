@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import {
   Tabs,
   Tab,
@@ -9,17 +9,31 @@ import {
   Card,
   CardBody,
   CardHeader,
+  CardFooter,
 } from '@nextui-org/react'
 import { Eye, EyeOff } from 'lucide-react'
+import registerUser from '@/actions/sign-up'
+import { useFormState, useFormStatus } from 'react-dom'
+import { ZodErrors } from '@/components/custom/ZodErrors'
+import { StrapiErrors } from '@/components/custom/StrapiErrors'
+import { signInCredentials } from '@/actions/sign-in'
 
 interface LoginFormProp {
   tabKey: 'login' | 'sign-up'
 }
 
+const INITIAL_STATE = {
+  data: null,
+}
+
 export default function LoginForm({ tabKey }: LoginFormProp) {
-  const [selected, setSelected] = React.useState<React.Key>(tabKey)
-  const [isVisible, setIsVisible] = React.useState(false)
+  const [selected, setSelected] = useState<React.Key>(tabKey)
+  const [isVisible, setIsVisible] = useState(false)
   const toggleVisibility = () => setIsVisible(!isVisible)
+
+  const { pending } = useFormStatus()
+
+  const [formState, formAction] = useFormState(registerUser, INITIAL_STATE)
 
   return (
     <div className="flex flex-col w-full">
@@ -97,12 +111,12 @@ export default function LoginForm({ tabKey }: LoginFormProp) {
               </form>
             </Tab>
             <Tab key="sign-up" title="Регистрация">
-              <form className="flex flex-col gap-4">
+              <form action={formAction} className="flex flex-col gap-4">
                 <Input
                   variant="bordered"
                   size="lg"
                   type="text"
-                  name="name"
+                  name="username"
                   label="Имя"
                   labelPlacement="outside"
                   placeholder="Ваш имя"
@@ -110,6 +124,7 @@ export default function LoginForm({ tabKey }: LoginFormProp) {
                   radius="sm"
                   isRequired
                 />
+                <ZodErrors error={formState?.zodErrors?.username} />
                 <Input
                   variant="bordered"
                   size="lg"
@@ -121,6 +136,7 @@ export default function LoginForm({ tabKey }: LoginFormProp) {
                   radius="sm"
                   isRequired
                 />
+                <ZodErrors error={formState?.zodErrors?.email} />
                 <Input
                   isRequired
                   autoComplete="on"
@@ -147,6 +163,8 @@ export default function LoginForm({ tabKey }: LoginFormProp) {
                   }
                 />
 
+                <ZodErrors error={formState?.zodErrors?.password} />
+
                 <p className="text-center text-small">
                   У вас уже есть аккаунт?{' '}
                   <Link
@@ -159,8 +177,9 @@ export default function LoginForm({ tabKey }: LoginFormProp) {
                 </p>
                 <div className="flex gap-2 justify-end">
                   <Button
+                    type="submit"
                     fullWidth={true}
-                    className=" text-white mt-8 mb-5 hover:bg-green-600"
+                    className=" text-white mt-8 hover:bg-green-600"
                     size="lg"
                     radius="sm"
                     color="secondary"
@@ -172,6 +191,9 @@ export default function LoginForm({ tabKey }: LoginFormProp) {
             </Tab>
           </Tabs>
         </CardBody>
+        <CardFooter className="flex justify-center">
+          <StrapiErrors error={formState?.strapiErrors} />
+        </CardFooter>
       </Card>
     </div>
   )
