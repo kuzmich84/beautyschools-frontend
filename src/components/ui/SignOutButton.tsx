@@ -5,8 +5,14 @@ import React from 'react'
 
 export default function SignOutButton() {
   return (
-    <Button color="primary" variant="light" onClick={() => signOut()}>
-      Выйти
-    </Button>
+    <form
+      action={async () => {
+        await signOut()
+      }}
+    >
+      <Button color="primary" variant="light" type="submit">
+        Выйти
+      </Button>
+    </form>
   )
 }

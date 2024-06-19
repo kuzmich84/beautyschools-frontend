@@ -16,7 +16,11 @@ import registerUser from '@/actions/sign-up'
 import { useFormState, useFormStatus } from 'react-dom'
 import { ZodErrors } from '@/components/custom/ZodErrors'
 import { StrapiErrors } from '@/components/custom/StrapiErrors'
-import { signInCredentials } from '@/actions/sign-in'
+import StrapiSuccess from '@/components/custom/StrapiSuccess'
+import { signIn } from 'next-auth/react'
+import { z } from 'zod'
+
+import { useRouter, useSearchParams } from 'next/navigation'
 
 interface LoginFormProp {
   tabKey: 'login' | 'sign-up'
@@ -26,15 +30,120 @@ const INITIAL_STATE = {
   data: null,
 }
 
+const initialLoginState = {
+  identifier: '',
+  password: '',
+}
+
+type FormErrorsT = {
+  identifier?: undefined | string[]
+  password?: undefined | string[]
+  strapiError?: string
+}
+
+const formLoginSchema = z.object({
+  identifier: z
+    .string()
+    .min(3, { message: 'Имя или email должны содержать не менее 6 символов' })
+    .max(30, {
+      message: 'Имя или email должны содержать не более 30 символов',
+    }),
+  password: z
+    .string()
+    .min(6, { message: 'Пароль должен содержать не менее 6 символов' })
+    .max(30, {
+      message: 'Пароль должен содержать не более 30 символов',
+    }),
+})
+
 export default function LoginForm({ tabKey }: LoginFormProp) {
   const [selected, setSelected] = useState<React.Key>(tabKey)
   const [isVisible, setIsVisible] = useState(false)
   const toggleVisibility = () => setIsVisible(!isVisible)
 
-  const { pending } = useFormStatus()
-
   const [formState, formAction] = useFormState(registerUser, INITIAL_STATE)
 
+  const [errors, setErrors] = useState<FormErrorsT>({})
+  const [loginData, setLoginData] = useState(initialLoginState)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get('callbackUrl') || '/'
+  const router = useRouter()
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setLoginData({
+      ...loginData,
+      [e.target.name]: e.target.value,
+    })
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    const validatedFields = formLoginSchema.safeParse(loginData)
+
+    if (!validatedFields.success) {
+      setErrors(validatedFields.error.formErrors.fieldErrors)
+      setIsLoading(false)
+    } else {
+      const signInResponse = await signIn('credentials', {
+        identifier: loginData.identifier,
+        password: loginData.password,
+        redirect: false,
+      })
+      console.log(signInResponse?.error)
+
+      if (signInResponse && !signInResponse?.ok) {
+        setErrors({
+          strapiError: signInResponse.error
+            ? signInResponse.error
+            : 'Something went wrong.',
+        })
+        setIsLoading(false)
+      } else {
+        // router.push(callbackUrl)
+        // router.refresh()
+        setIsLoading(false)
+      }
+    }
+  }
+
+  function SubmitButton() {
+    const status = useFormStatus()
+
+    return (
+      <div className="flex gap-2 justify-end">
+        <Button
+          type="submit"
+          fullWidth={true}
+          className=" text-white mt-8 hover:bg-green-600"
+          size="lg"
+          radius="sm"
+          color="secondary"
+          isLoading={status.pending}
+        >
+          Зарегистрироваться
+        </Button>
+      </div>
+    )
+  }
+
+  function LoginButton() {
+    return (
+      <div className="flex gap-2 justify-end">
+        <Button
+          fullWidth
+          className="bg-indigo-600 text-white mt-8 mb-5 hover:bg-green-600"
+          size="lg"
+          radius="sm"
+          isLoading={isLoading}
+          type="submit"
+        >
+          Войти
+        </Button>
+      </div>
+    )
+  }
   return (
     <div className="flex flex-col w-full">
       <Card className="max-w-full w-[400px]">
@@ -49,19 +158,26 @@ export default function LoginForm({ tabKey }: LoginFormProp) {
             className="text-white"
           >
             <Tab key="login" title="Войти">
-              <form className="flex flex-col gap-4">
+              <form
+                className="flex flex-col gap-4"
+                method="post"
+                onSubmit={handleSubmit}
+              >
                 <Input
                   variant="bordered"
                   size="lg"
-                  type="email"
-                  name="email"
+                  type="text"
+                  name="identifier"
                   label="Email"
                   labelPlacement="outside"
                   placeholder="Ваш email"
                   className="pt-6"
                   radius="sm"
                   isRequired
+                  onChange={handleChange}
                 />
+                <ZodErrors error={errors?.identifier!} />
+
                 <Input
                   isRequired
                   autoComplete="on"
@@ -73,6 +189,7 @@ export default function LoginForm({ tabKey }: LoginFormProp) {
                   placeholder="Ваш пароль"
                   radius="sm"
                   type={isVisible ? 'text' : 'password'}
+                  onChange={handleChange}
                   endContent={
                     <button
                       className="focus:outline-none"
@@ -87,6 +204,7 @@ export default function LoginForm({ tabKey }: LoginFormProp) {
                     </button>
                   }
                 />
+                <ZodErrors error={errors?.password!} />
 
                 <p className="text-center text-small">
                   Нет аккаунта?{' '}
@@ -98,16 +216,7 @@ export default function LoginForm({ tabKey }: LoginFormProp) {
                     Зарегистрироваться
                   </Link>
                 </p>
-                <div className="flex gap-2 justify-end">
-                  <Button
-                    fullWidth
-                    className="bg-indigo-600 text-white mt-8 mb-5 hover:bg-green-600"
-                    size="lg"
-                    radius="sm"
-                  >
-                    Войти
-                  </Button>
-                </div>
+                <LoginButton />
               </form>
             </Tab>
             <Tab key="sign-up" title="Регистрация">
@@ -175,24 +284,20 @@ export default function LoginForm({ tabKey }: LoginFormProp) {
                     Войти
                   </Link>
                 </p>
-                <div className="flex gap-2 justify-end">
-                  <Button
-                    type="submit"
-                    fullWidth={true}
-                    className=" text-white mt-8 hover:bg-green-600"
-                    size="lg"
-                    radius="sm"
-                    color="secondary"
-                  >
-                    Зарегистрироваться
-                  </Button>
-                </div>
+                <SubmitButton />
               </form>
             </Tab>
           </Tabs>
         </CardBody>
         <CardFooter className="flex justify-center">
           <StrapiErrors error={formState?.strapiErrors} />
+          <StrapiSuccess message={formState?.successMessage} />
+
+          {errors.password || errors.identifier ? (
+            <div className="text-red-700" aria-live="polite">
+              Something went wrong. Please check your data.
+            </div>
+          ) : null}
         </CardFooter>
       </Card>
     </div>

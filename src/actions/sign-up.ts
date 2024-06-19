@@ -2,6 +2,7 @@
 
 import { registerUserService } from '@/data/services/auth-service'
 import paths from '@/paths'
+import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 
@@ -63,9 +64,7 @@ export default async function registerUser(prevState: any, formData: FormData) {
     }
   }
 
-  console.log('#############')
-  console.log('User Registered Successfully', responseData.jwt)
-  console.log('#############')
-
-  redirect(paths.login())
+  return {
+    successMessage: 'Вы зарегистрированы успешно.',
+  }
 }
